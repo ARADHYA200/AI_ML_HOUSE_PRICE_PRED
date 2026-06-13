@@ -11,17 +11,28 @@ with open("model.pkl", "rb") as f:
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    data = request.json
+    # Ensure request contains JSON
+    if not request.is_json:
+        return jsonify({"error": "Request must be application/json"}), 400
 
-    area = data["area"]
-    bedrooms = data["bedrooms"]
-    bathrooms = data["bathrooms"]
+    data = request.get_json(force=True)
 
-    prediction = model.predict([[area, bedrooms, bathrooms]])
+    # Validate required fields
+    try:
+        area = float(data.get("area"))
+        bedrooms = float(data.get("bedrooms"))
+        bathrooms = float(data.get("bathrooms"))
+    except Exception:
+        return jsonify({"error": "Invalid or missing fields. Expected numeric 'area', 'bedrooms', 'bathrooms'."}), 400
 
-    return jsonify({
-        "predicted_price": round(prediction[0], 2)
-    })
+    # Make prediction
+    try:
+        prediction = model.predict([[area, bedrooms, bathrooms]])
+        predicted = round(float(prediction[0]), 2)
+    except Exception as e:
+        return jsonify({"error": "Model prediction failed", "details": str(e)}), 500
+
+    return jsonify({"predicted_price": predicted})
 
 if __name__ == "__main__":
     app.run(debug=True)
