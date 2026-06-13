@@ -3,7 +3,6 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://ARADHYA200.github.io/AI_ML_HOUSE_PRICE_PRED",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
